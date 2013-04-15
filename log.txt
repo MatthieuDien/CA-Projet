@@ -1,0 +1,778 @@
+.file	1 "test_asm.c"
+.section	.mdebug.abi32
+.previous	
+.gnu_attribute	4,1
+.global	tab
+.data	
+.align	2
+.type	tab,@object
+.size	tab,28
+tab:
+.word	23
+.word	45
+.word	4294967290
+.word	120
+.word	2
+.word	11
+.word	23
+.text	
+.align	2
+.global	max2
+.set	nomips16
+.ent	max2
+max2:
+.frame	$30,16,$31
+.mask	1073741824,-4
+.fmask	0,0
+.set	noreorder
+.set	nomacro
+addiu $29,$29,65520
+sw $30,12($29)
+or $30,$29,$0
+sw $4,16($30)
+sw $5,20($30)
+lw $2,16($30)
+lw $3,20($30)
+slt $2,$2,$3
+beq $2,$0,$l2
+add $0,$0,$0
+lw $2,20($30)
+sw $2,0($30)
+j $l3
+add $0,$0,$0
+$l2:
+lw $2,16($30)
+sw $2,0($30)
+$l3:
+lw $2,0($30)
+or $29,$30,$0
+lw $30,12($29)
+addiu $29,$29,16
+jr $31
+add $0,$0,$0
+.set	macro
+.set	reorder
+.end	max2
+.size	max2,.-max2
+.align	2
+.global	max
+.set	nomips16
+.ent	max
+max:
+.frame	$30,16,$31
+.mask	1073741824,-4
+.fmask	0,0
+.set	noreorder
+.set	nomacro
+addiu $29,$29,65520
+sw $30,12($29)
+or $30,$29,$0
+sw $4,16($30)
+sw $5,20($30)
+sw $6,24($30)
+lw $2,16($30)
+lw $3,20($30)
+slt $2,$2,$3
+beq $2,$0,$l6
+add $0,$0,$0
+lw $2,20($30)
+lw $3,24($30)
+slt $2,$2,$3
+beq $2,$0,$l7
+add $0,$0,$0
+lw $2,24($30)
+sw $2,0($30)
+j $l8
+add $0,$0,$0
+$l7:
+lw $2,20($30)
+sw $2,0($30)
+j $l8
+add $0,$0,$0
+$l6:
+lw $2,16($30)
+lw $3,24($30)
+slt $2,$2,$3
+beq $2,$0,$l9
+add $0,$0,$0
+lw $2,24($30)
+sw $2,0($30)
+j $l8
+add $0,$0,$0
+$l9:
+lw $2,16($30)
+sw $2,0($30)
+$l8:
+lw $2,0($30)
+or $29,$30,$0
+lw $30,12($29)
+addiu $29,$29,16
+jr $31
+add $0,$0,$0
+.set	macro
+.set	reorder
+.end	max
+.size	max,.-max
+.align	2
+.global	max_tab
+.set	nomips16
+.ent	max_tab
+max_tab:
+.frame	$30,16,$31
+.mask	1073741824,-4
+.fmask	0,0
+.set	noreorder
+.set	nomacro
+addiu $29,$29,65520
+sw $30,12($29)
+or $30,$29,$0
+sw $4,16($30)
+sw $5,20($30)
+.set	noat
+lui $1,65535
+ori $2,$1,65535
+.set	at
+sw $2,0($30)
+sw $0,4($30)
+j $l12
+add $0,$0,$0
+$l14:
+lw $2,4($30)
+sll $3,$2,2
+lw $2,16($30)
+addu $2,$2,$3
+lw $3,0($2)
+lw $2,0($30)
+slt $2,$2,$3
+beq $2,$0,$l13
+add $0,$0,$0
+lw $2,4($30)
+sll $3,$2,2
+lw $2,16($30)
+addu $2,$2,$3
+lw $2,0($2)
+sw $2,0($30)
+$l13:
+lw $2,4($30)
+addiu $2,$2,1
+sw $2,4($30)
+$l12:
+lw $2,4($30)
+lw $3,20($30)
+slt $2,$2,$3
+bne $2,$0,$l14
+add $0,$0,$0
+lw $2,0($30)
+or $29,$30,$0
+lw $30,12($29)
+addiu $29,$29,16
+jr $31
+add $0,$0,$0
+.set	macro
+.set	reorder
+.end	max_tab
+.size	max_tab,.-max_tab
+.rdata	
+.align	2
+$lc0:
+.ascii	"%d\012\000"
+.text	
+.align	2
+.global	main
+.set	nomips16
+.ent	main
+main:
+.frame	$30,24,$31
+.mask	3221225472,-4
+.fmask	0,0
+.set	noreorder
+.set	nomacro
+addiu $29,$29,65512
+sw $31,20($29)
+sw $30,16($29)
+or $30,$29,$0
+sw $4,24($30)
+sw $5,28($30)
+.set	noat
+lui $1,0
+ori $4,$1,3
+.set	at
+.set	noat
+lui $1,0
+ori $5,$1,16
+.set	at
+.set	noat
+lui $1,0
+ori $6,$1,8
+.set	at
+jal max
+add $0,$0,$0
+or $3,$2,$0
+lui $2,%hi($lc0)
+addiu $4,$2,%lo($lc0)
+or $5,$3,$0
+jal printf
+add $0,$0,$0
+lui $2,%hi(tab)
+addiu $4,$2,%lo(tab)
+.set	noat
+lui $1,0
+ori $5,$1,7
+.set	at
+jal max_tab
+add $0,$0,$0
+or $3,$2,$0
+lui $2,%hi($lc0)
+addiu $4,$2,%lo($lc0)
+or $5,$3,$0
+jal printf
+add $0,$0,$0
+or $2,$0,$0
+or $29,$30,$0
+lw $31,20($29)
+lw $30,16($29)
+addiu $29,$29,24
+jr $31
+add $0,$0,$0
+.set	macro
+.set	reorder
+.end	main
+.size	main,.-main
+.ident	 "gcc: (gnu) 4.3.2"
+
+dans le fichier src/examples/ex_asm.s nb function : 4
+
+
+NEW ITERATION
+
+comput BB
+head :.ent	max2
+tail :.end	max2
+Begin BB
+max2:
+i0 addiu $29,$29,65520
+i1 sw $30,12($29)
+i2 or $30,$29,$0
+i3 sw $4,16($30)
+i4 sw $5,20($30)
+i5 lw $2,16($30)
+i6 lw $3,20($30)
+i7 slt $2,$2,$3
+i8 beq $2,$0,$l2
+i9 add $0,$0,$0
+End BB
+Begin BB
+i0 lw $2,20($30)
+i1 sw $2,0($30)
+i2 j $l3
+i3 add $0,$0,$0
+End BB
+Begin BB
+$l2:
+i0 lw $2,16($30)
+i1 sw $2,0($30)
+End BB
+Begin BB
+$l3:
+i0 lw $2,0($30)
+i1 or $29,$30,$0
+i2 lw $30,12($29)
+i3 addiu $29,$29,16
+i4 jr $31
+i5 add $0,$0,$0
+End BB
+end comput BB
+begin comput succ_pred
+operand getted
+BB 2 successeur du BB 0
+BB 1 successeur du BB 0
+on passe ici
+lbl found
+BB 3 successeur du BB 1
+unconditionnal jump treated
+on passe par là
+BB 3 successeur du BB 2
+Indirect Branch
+end comput succ_pred
+New function test
+test du BB 0
+Begin BB
+max2:
+i0 addiu $29,$29,65520
+i1 sw $30,12($29)
+i2 or $30,$29,$0
+i3 sw $4,16($30)
+i4 sw $5,20($30)
+i5 lw $2,16($30)
+i6 lw $3,20($30)
+i7 slt $2,$2,$3
+i8 beq $2,$0,$l2
+i9 add $0,$0,$0
+End BB
+nb de successeur : 2
+succ1 : 2 succ2 : 1
+nb de predecesseurs : 0
+
+test du BB 1
+Begin BB
+i0 lw $2,20($30)
+i1 sw $2,0($30)
+i2 j $l3
+i3 add $0,$0,$0
+End BB
+nb de successeur : 1
+succ1 : 3
+nb de predecesseurs : 1
+pred 0 : 0; 
+test du BB 2
+Begin BB
+$l2:
+i0 lw $2,16($30)
+i1 sw $2,0($30)
+End BB
+nb de successeur : 1
+succ1 : 3
+nb de predecesseurs : 1
+pred 0 : 0; 
+test du BB 3
+Begin BB
+$l3:
+i0 lw $2,0($30)
+i1 or $29,$30,$0
+i2 lw $30,12($29)
+i3 addiu $29,$29,16
+i4 jr $31
+i5 add $0,$0,$0
+End BB
+nb de successeur : 0
+
+nb de predecesseurs : 2
+pred 0 : 1; pred 1 : 2; 
+
+
+NEW ITERATION
+
+comput BB
+head :.ent	max
+tail :.end	max
+Begin BB
+max:
+i0 addiu $29,$29,65520
+i1 sw $30,12($29)
+i2 or $30,$29,$0
+i3 sw $4,16($30)
+i4 sw $5,20($30)
+i5 sw $6,24($30)
+i6 lw $2,16($30)
+i7 lw $3,20($30)
+i8 slt $2,$2,$3
+i9 beq $2,$0,$l6
+i10 add $0,$0,$0
+End BB
+Begin BB
+i0 lw $2,20($30)
+i1 lw $3,24($30)
+i2 slt $2,$2,$3
+i3 beq $2,$0,$l7
+i4 add $0,$0,$0
+End BB
+Begin BB
+i0 lw $2,24($30)
+i1 sw $2,0($30)
+i2 j $l8
+i3 add $0,$0,$0
+End BB
+Begin BB
+$l7:
+i0 lw $2,20($30)
+i1 sw $2,0($30)
+i2 j $l8
+i3 add $0,$0,$0
+End BB
+Begin BB
+$l6:
+i0 lw $2,16($30)
+i1 lw $3,24($30)
+i2 slt $2,$2,$3
+i3 beq $2,$0,$l9
+i4 add $0,$0,$0
+End BB
+Begin BB
+i0 lw $2,24($30)
+i1 sw $2,0($30)
+i2 j $l8
+i3 add $0,$0,$0
+End BB
+Begin BB
+$l9:
+i0 lw $2,16($30)
+i1 sw $2,0($30)
+End BB
+Begin BB
+$l8:
+i0 lw $2,0($30)
+i1 or $29,$30,$0
+i2 lw $30,12($29)
+i3 addiu $29,$29,16
+i4 jr $31
+i5 add $0,$0,$0
+End BB
+end comput BB
+begin comput succ_pred
+operand getted
+BB 4 successeur du BB 0
+BB 1 successeur du BB 0
+operand getted
+BB 3 successeur du BB 1
+BB 2 successeur du BB 1
+on passe ici
+lbl found
+BB 7 successeur du BB 2
+unconditionnal jump treated
+on passe ici
+lbl found
+BB 7 successeur du BB 3
+unconditionnal jump treated
+operand getted
+BB 6 successeur du BB 4
+BB 5 successeur du BB 4
+on passe ici
+lbl found
+BB 7 successeur du BB 5
+unconditionnal jump treated
+on passe par là
+BB 7 successeur du BB 6
+Indirect Branch
+end comput succ_pred
+New function test
+test du BB 0
+Begin BB
+max:
+i0 addiu $29,$29,65520
+i1 sw $30,12($29)
+i2 or $30,$29,$0
+i3 sw $4,16($30)
+i4 sw $5,20($30)
+i5 sw $6,24($30)
+i6 lw $2,16($30)
+i7 lw $3,20($30)
+i8 slt $2,$2,$3
+i9 beq $2,$0,$l6
+i10 add $0,$0,$0
+End BB
+nb de successeur : 2
+succ1 : 4 succ2 : 1
+nb de predecesseurs : 0
+
+test du BB 1
+Begin BB
+i0 lw $2,20($30)
+i1 lw $3,24($30)
+i2 slt $2,$2,$3
+i3 beq $2,$0,$l7
+i4 add $0,$0,$0
+End BB
+nb de successeur : 2
+succ1 : 3 succ2 : 2
+nb de predecesseurs : 1
+pred 0 : 0; 
+test du BB 2
+Begin BB
+i0 lw $2,24($30)
+i1 sw $2,0($30)
+i2 j $l8
+i3 add $0,$0,$0
+End BB
+nb de successeur : 1
+succ1 : 7
+nb de predecesseurs : 1
+pred 0 : 1; 
+test du BB 3
+Begin BB
+$l7:
+i0 lw $2,20($30)
+i1 sw $2,0($30)
+i2 j $l8
+i3 add $0,$0,$0
+End BB
+nb de successeur : 1
+succ1 : 7
+nb de predecesseurs : 1
+pred 0 : 1; 
+test du BB 4
+Begin BB
+$l6:
+i0 lw $2,16($30)
+i1 lw $3,24($30)
+i2 slt $2,$2,$3
+i3 beq $2,$0,$l9
+i4 add $0,$0,$0
+End BB
+nb de successeur : 2
+succ1 : 6 succ2 : 5
+nb de predecesseurs : 1
+pred 0 : 0; 
+test du BB 5
+Begin BB
+i0 lw $2,24($30)
+i1 sw $2,0($30)
+i2 j $l8
+i3 add $0,$0,$0
+End BB
+nb de successeur : 1
+succ1 : 7
+nb de predecesseurs : 1
+pred 0 : 4; 
+test du BB 6
+Begin BB
+$l9:
+i0 lw $2,16($30)
+i1 sw $2,0($30)
+End BB
+nb de successeur : 1
+succ1 : 7
+nb de predecesseurs : 1
+pred 0 : 4; 
+test du BB 7
+Begin BB
+$l8:
+i0 lw $2,0($30)
+i1 or $29,$30,$0
+i2 lw $30,12($29)
+i3 addiu $29,$29,16
+i4 jr $31
+i5 add $0,$0,$0
+End BB
+nb de successeur : 0
+
+nb de predecesseurs : 4
+pred 0 : 2; pred 1 : 3; pred 2 : 5; pred 3 : 6; 
+
+
+NEW ITERATION
+
+comput BB
+head :.ent	max_tab
+tail :.end	max_tab
+Begin BB
+max_tab:
+i0 addiu $29,$29,65520
+i1 sw $30,12($29)
+i2 or $30,$29,$0
+i3 sw $4,16($30)
+i4 sw $5,20($30)
+i5 lui $1,65535
+i6 ori $2,$1,65535
+i7 sw $2,0($30)
+i8 sw $0,4($30)
+i9 j $l12
+i10 add $0,$0,$0
+End BB
+Begin BB
+$l14:
+i0 lw $2,4($30)
+i1 sll $3,$2,2
+i2 lw $2,16($30)
+i3 addu $2,$2,$3
+i4 lw $3,0($2)
+i5 lw $2,0($30)
+i6 slt $2,$2,$3
+i7 beq $2,$0,$l13
+i8 add $0,$0,$0
+End BB
+Begin BB
+i0 lw $2,4($30)
+i1 sll $3,$2,2
+i2 lw $2,16($30)
+i3 addu $2,$2,$3
+i4 lw $2,0($2)
+i5 sw $2,0($30)
+End BB
+Begin BB
+$l13:
+i0 lw $2,4($30)
+i1 addiu $2,$2,1
+i2 sw $2,4($30)
+End BB
+Begin BB
+$l12:
+i0 lw $2,4($30)
+i1 lw $3,20($30)
+i2 slt $2,$2,$3
+i3 bne $2,$0,$l14
+i4 add $0,$0,$0
+End BB
+Begin BB
+i0 lw $2,0($30)
+i1 or $29,$30,$0
+i2 lw $30,12($29)
+i3 addiu $29,$29,16
+i4 jr $31
+i5 add $0,$0,$0
+End BB
+end comput BB
+begin comput succ_pred
+on passe ici
+lbl found
+BB 4 successeur du BB 0
+unconditionnal jump treated
+operand getted
+BB 3 successeur du BB 1
+BB 2 successeur du BB 1
+on passe par là
+BB 3 successeur du BB 2
+on passe par là
+BB 4 successeur du BB 3
+operand getted
+BB 1 successeur du BB 4
+BB 5 successeur du BB 4
+Indirect Branch
+end comput succ_pred
+New function test
+test du BB 0
+Begin BB
+max_tab:
+i0 addiu $29,$29,65520
+i1 sw $30,12($29)
+i2 or $30,$29,$0
+i3 sw $4,16($30)
+i4 sw $5,20($30)
+i5 lui $1,65535
+i6 ori $2,$1,65535
+i7 sw $2,0($30)
+i8 sw $0,4($30)
+i9 j $l12
+i10 add $0,$0,$0
+End BB
+nb de successeur : 1
+succ1 : 4
+nb de predecesseurs : 0
+
+test du BB 1
+Begin BB
+$l14:
+i0 lw $2,4($30)
+i1 sll $3,$2,2
+i2 lw $2,16($30)
+i3 addu $2,$2,$3
+i4 lw $3,0($2)
+i5 lw $2,0($30)
+i6 slt $2,$2,$3
+i7 beq $2,$0,$l13
+i8 add $0,$0,$0
+End BB
+nb de successeur : 2
+succ1 : 3 succ2 : 2
+nb de predecesseurs : 1
+pred 0 : 4; 
+test du BB 2
+Begin BB
+i0 lw $2,4($30)
+i1 sll $3,$2,2
+i2 lw $2,16($30)
+i3 addu $2,$2,$3
+i4 lw $2,0($2)
+i5 sw $2,0($30)
+End BB
+nb de successeur : 1
+succ1 : 3
+nb de predecesseurs : 1
+pred 0 : 1; 
+test du BB 3
+Begin BB
+$l13:
+i0 lw $2,4($30)
+i1 addiu $2,$2,1
+i2 sw $2,4($30)
+End BB
+nb de successeur : 1
+succ1 : 4
+nb de predecesseurs : 2
+pred 0 : 1; pred 1 : 2; 
+test du BB 4
+Begin BB
+$l12:
+i0 lw $2,4($30)
+i1 lw $3,20($30)
+i2 slt $2,$2,$3
+i3 bne $2,$0,$l14
+i4 add $0,$0,$0
+End BB
+nb de successeur : 2
+succ1 : 1 succ2 : 5
+nb de predecesseurs : 2
+pred 0 : 0; pred 1 : 3; 
+test du BB 5
+Begin BB
+i0 lw $2,0($30)
+i1 or $29,$30,$0
+i2 lw $30,12($29)
+i3 addiu $29,$29,16
+i4 jr $31
+i5 add $0,$0,$0
+End BB
+nb de successeur : 0
+
+nb de predecesseurs : 1
+pred 0 : 4; 
+
+
+NEW ITERATION
+
+comput BB
+head :.ent	main
+tail :.end	main
+Begin BB
+main:
+i0 addiu $29,$29,65512
+i1 sw $31,20($29)
+i2 sw $30,16($29)
+i3 or $30,$29,$0
+i4 sw $4,24($30)
+i5 sw $5,28($30)
+i6 lui $1,0
+i7 ori $4,$1,3
+i8 lui $1,0
+i9 ori $5,$1,16
+i10 lui $1,0
+i11 ori $6,$1,8
+i12 jal max
+i13 add $0,$0,$0
+End BB
+Begin BB
+i0 or $3,$2,$0
+i1 lui $2,%hi($lc0)
+i2 addiu $4,$2,%lo($lc0)
+i3 or $5,$3,$0
+i4 jal printf
+i5 add $0,$0,$0
+End BB
+Begin BB
+i0 lui $2,%hi(tab)
+i1 addiu $4,$2,%lo(tab)
+i2 lui $1,0
+i3 ori $5,$1,7
+i4 jal max_tab
+i5 add $0,$0,$0
+End BB
+Begin BB
+i0 or $3,$2,$0
+i1 lui $2,%hi($lc0)
+i2 addiu $4,$2,%lo($lc0)
+i3 or $5,$3,$0
+i4 jal printf
+i5 add $0,$0,$0
+End BB
+Begin BB
+i0 or $2,$0,$0
+i1 or $29,$30,$0
+i2 lw $31,20($29)
+i3 lw $30,16($29)
+i4 addiu $29,$29,24
+i5 jr $31
+i6 add $0,$0,$0
+End BB
+end comput BB
+begin comput succ_pred
+on passe ici
+lbl found
