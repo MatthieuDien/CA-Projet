@@ -51,14 +51,25 @@ Dfg::Dfg(Basic_block *bb){
      list_node_dfg.push_back(new Node_dfg(bb->get_instruction_at_index(i)));
    }
    
-   list<Node_dfg*>::iterator it_node = liste_node_dfg.begin();
+   list<Node_dfg*>::iterator it_node = list_node_dfg.begin();
    for(int i=0;i<_length;i++) {
-     Node* node = *it_node;
+     Node_dfg* node = *it_node;
      Instruction* inst = node->get_instruction();
      if(inst->get_nb_pred() == 0)
-       _roots.push_pack(node);
+       _roots.push_back(node);
      for(list<dep*>::iterator it_succ = inst->succ_begin(); it_succ != inst->succ_end(); it_succ++) {
-       Arc_t* arc = new_arc(get_delay(*it_succ, inst, (*it_succ)->inst),(*it_succ)->dep, //TODO récupérer le node
+       list<Node_dfg*>::iterator it_temp ;
+       Node_dfg* succ;
+       for(it_temp=list_node_dfg.begin();it_temp==list_node_dfg.end();it_temp++){
+	 if(((Node_dfg*)*it_temp)->get_instruction() == (Instruction*)inst){
+	   succ=(Node_dfg*)*it_temp;
+	   break;
+	 }
+       }
+       t_Dep dep = inst->is_dependant(succ->get_instruction());
+       int delay = get_delay(dep,inst,succ->get_instruction());
+       Arc_t* arc = new_arc(delay,dep,succ);
+       node->add_arc(arc);
      }
 
      
@@ -230,7 +241,7 @@ void Dfg::comput_critical_path(){
 
 
 // A FAIRE
-int Dfg::get_critical_path(){}
+int Dfg::get_critical_path(){ return 0;}
 
 
 
