@@ -36,46 +36,55 @@ int get_delay(t_Dep dep, Instruction *from, Instruction *to){
 // A REMPLIR
 Dfg::Dfg(Basic_block *bb){
   
-   list<Arc_t*>::iterator ita;
+  list<Arc_t*>::iterator ita;
 
  
-   _bb=bb;
-   _index_branch=-1;
-   _nb_arc=0;  
-   _length=bb->get_nb_inst();;
-   _read= new int[_length];
+  _bb=bb;
+  _index_branch=-1;
+  _nb_arc=0;  
+  _length=bb->get_nb_inst();;
+  _read= new int[_length];
   
-   bb->comput_pred_succ_dep();
+  bb->comput_pred_succ_dep();
 
-   for(int i=0;i<_length;i++) {
-     list_node_dfg.push_back(new Node_dfg(bb->get_instruction_at_index(i)));
-   }
+  for(int i=0;i<_length;i++) {
+    list_node_dfg.push_back(new Node_dfg(bb->get_instruction_at_index(i)));
+  }
    
-   list<Node_dfg*>::iterator it_node = list_node_dfg.begin();
-   for(int i=0;i<_length;i++) {
-     Node_dfg* node = *it_node;
-     Instruction* inst = node->get_instruction();
-     if(inst->get_nb_pred() == 0)
-       _roots.push_back(node);
-     for(list<dep*>::iterator it_succ = inst->succ_begin(); it_succ != inst->succ_end(); it_succ++) {
-       list<Node_dfg*>::iterator it_temp ;
-       Node_dfg* succ;
-       for(it_temp=list_node_dfg.begin();it_temp==list_node_dfg.end();it_temp++){
-	 if(((Node_dfg*)*it_temp)->get_instruction() == (Instruction*)inst){
-	   succ=(Node_dfg*)*it_temp;
-	   break;
-	 }
-       }
-       t_Dep dep = inst->is_dependant(succ->get_instruction());
-       int delay = get_delay(dep,inst,succ->get_instruction());
-       Arc_t* arc = new_arc(delay,dep,succ);
-       node->add_arc(arc);
-     }
+  list<Node_dfg*>::iterator it_node = list_node_dfg.begin();
+  for(int i=0;i<_length;i++) {
+    Node_dfg* node = *it_node;
+    Instruction* inst = node->get_instruction();  
+
+    if(inst->get_nb_pred() == 0 && !inst->is_branch())
+      _roots.push_back(node);
+
+    for(list<dep*>::iterator it_succ = inst->succ_begin(); it_succ != inst->succ_end(); it_succ++) {
+      list<Node_dfg*>::iterator it_temp ;
+      Node_dfg* succ;
+      for(it_temp=list_node_dfg.begin();it_temp!=list_node_dfg.end();it_temp++){
+	if(((Node_dfg*)*it_temp)->get_instruction() == (Instruction*)inst){
+	  succ=(Node_dfg*)*it_temp;
+	  break;
+	}
+      }
+      t_Dep dep = inst->is_dependant(succ->get_instruction());
+      int delay = get_delay(dep,inst,succ->get_instruction());
+      Arc_t* arc = new_arc(delay,dep,succ);
+      node->add_arc(arc);
+    }
+    
+    if(inst->is_branch()) {
+      // Faut-il ajouter les dépendances de controle ?
+      _index_branch = i;
+      _delayed_slot.push_back((Node_dfg*)*(++it_node));
+      cout << "nb succ : " << inst->get_nb_succ() << endl;
+      break;
+    }
 
      
-     it_node++; 
-   }
-
+    it_node++; 
+  }
 }
 
 // // methode auxiliaire pour la construction du Dfg, pas forcément utile, dépend de comment vous envisagez de faire...
