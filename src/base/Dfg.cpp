@@ -55,8 +55,10 @@ Dfg::Dfg(Basic_block *bb){
 
     temp_node = new Node_dfg(temp);
 
-    if(temp->is_branch())
+    if(temp->is_branch()) {
+      _index_branch=i;
       branch = temp_node;
+    }
       
     list_node_dfg.push_back(temp_node);
   }
@@ -69,32 +71,35 @@ Dfg::Dfg(Basic_block *bb){
     if(inst->get_nb_pred() == 0 && !inst->is_branch()) {
       cout << "on chope une racine" << endl;
       _roots.push_back(node);
-      // on rajoute la dépendance de CONTROL
-      Arc_t* arc_control = new_arc(0,CONTROL,node);
-      branch->add_arc(arc_control);
-      cout << "arc de control ajouté" << endl;
     }
 
     if(inst->is_branch()) {
-      _index_branch = i;
       _delayed_slot.push_back((Node_dfg*)*(++it_node));
       break;
     }
 
-    for(list<dep*>::iterator it_succ = inst->succ_begin(); it_succ != inst->succ_end(); it_succ++) {
-      list<Node_dfg*>::iterator it_temp ;
-      Node_dfg* succ;
-      for(it_temp=list_node_dfg.begin();it_temp!=list_node_dfg.end();it_temp++){
-	if(((Node_dfg*)*it_temp)->get_instruction() == (Instruction*)inst){
-	  succ=(Node_dfg*)*it_temp;
-	  break;
+    if(inst->succ_begin()==inst->succ_end()){
+      //L'instruction n'a pas de successeur
+      Arc_t* arc_branch = new_arc(0,CONTROL,branch);
+      node->add_arc(arc_branch);
+      cout << "arc de CONTROL ajouté" << endl;
+    } else {
+      for(list<dep*>::iterator it_succ = inst->succ_begin(); it_succ != inst->succ_end(); it_succ++) {
+	list<Node_dfg*>::iterator it_temp ;
+	Node_dfg* succ;
+	for(it_temp=list_node_dfg.begin();it_temp!=list_node_dfg.end();it_temp++){
+	  if(((Node_dfg*)*it_temp)->get_instruction() == (Instruction*)inst){
+	    succ=(Node_dfg*)*it_temp;
+	    break;
+	  }
 	}
+	//t_Dep dep = inst->is_dependant(succ->get_instruction());
+	t_Dep dep = (*it_succ)->type;
+	int delay = get_delay(dep,inst,succ->get_instruction());
+	Arc_t* arc = new_arc(delay,dep,succ);
+	node->add_arc(arc);
+	cout << "arc ajouté" << endl;
       }
-      t_Dep dep = inst->is_dependant(succ->get_instruction());
-      int delay = get_delay(dep,inst,succ->get_instruction());
-      Arc_t* arc = new_arc(delay,dep,succ);
-      node->add_arc(arc);
-      cout << "arc ajouté" << endl;
     }
          
     it_node++; 
