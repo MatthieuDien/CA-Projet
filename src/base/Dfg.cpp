@@ -47,8 +47,18 @@ Dfg::Dfg(Basic_block *bb){
   
   bb->comput_pred_succ_dep();
 
+  Node_dfg* branch;
+
   for(int i=0;i<_length;i++) {
-    list_node_dfg.push_back(new Node_dfg(bb->get_instruction_at_index(i)));
+    Node_dfg* temp_node;
+    Instruction* temp = bb->get_instruction_at_index(i);
+
+    temp_node = new Node_dfg(temp);
+
+    if(temp->is_branch())
+      branch = temp_node;
+      
+    list_node_dfg.push_back(temp_node);
   }
    
   list<Node_dfg*>::iterator it_node = list_node_dfg.begin();
@@ -56,8 +66,20 @@ Dfg::Dfg(Basic_block *bb){
     Node_dfg* node = *it_node;
     Instruction* inst = node->get_instruction();  
 
-    if(inst->get_nb_pred() == 0 && !inst->is_branch())
+    if(inst->get_nb_pred() == 0 && !inst->is_branch()) {
+      cout << "on chope une racine" << endl;
       _roots.push_back(node);
+      // on rajoute la dépendance de CONTROL
+      Arc_t* arc_control = new_arc(0,CONTROL,node);
+      branch->add_arc(arc_control);
+      cout << "arc de control ajouté" << endl;
+    }
+
+    if(inst->is_branch()) {
+      _index_branch = i;
+      _delayed_slot.push_back((Node_dfg*)*(++it_node));
+      break;
+    }
 
     for(list<dep*>::iterator it_succ = inst->succ_begin(); it_succ != inst->succ_end(); it_succ++) {
       list<Node_dfg*>::iterator it_temp ;
@@ -72,17 +94,9 @@ Dfg::Dfg(Basic_block *bb){
       int delay = get_delay(dep,inst,succ->get_instruction());
       Arc_t* arc = new_arc(delay,dep,succ);
       node->add_arc(arc);
+      cout << "arc ajouté" << endl;
     }
-    
-    if(inst->is_branch()) {
-      // Faut-il ajouter les dépendances de controle ?
-      _index_branch = i;
-      _delayed_slot.push_back((Node_dfg*)*(++it_node));
-      cout << "nb succ : " << inst->get_nb_succ() << endl;
-      break;
-    }
-
-     
+         
     it_node++; 
   }
 }
@@ -250,7 +264,9 @@ void Dfg::comput_critical_path(){
 
 
 // A FAIRE
-int Dfg::get_critical_path(){ return 0;}
+int Dfg::get_critical_path(){
+  return 0;
+}
 
 
 
