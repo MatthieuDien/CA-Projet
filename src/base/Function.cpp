@@ -293,7 +293,7 @@ void Function::comput_succ_pred_BB(){
 	 op = instr->get_op3();
 	 if (op==NULL) op = instr->get_op2();
 	 // get_op1 pas correct, il faut récupérer le bon opérande
-	 cout<<"operand getted"<<endl;
+	 //cout<<"operand getted"<<endl;
 	 lbl = (dynamic_cast< OPLabel * > (op));
 	 succ = find_label_BB(lbl);
 	 current->set_link_succ_pred(succ);
@@ -301,25 +301,25 @@ void Function::comput_succ_pred_BB(){
 	 // Segmentation fault, don't know why
 	 current->set_link_succ_pred(*++it);
        } else if (!instr->is_indirect_branch()) {
-	 cout << "on passe ici" << endl;
+	 //cout << "on passe ici" << endl;
 	 lbl = (dynamic_cast< OPLabel * > (instr->get_op1()));
 	 succ = find_label_BB(lbl);
 	 if(instr->is_call())
 	   current->set_link_succ_pred(*++it);
 	 else {
-	 cout << "lbl found" << endl;
+	   //cout << "lbl found" << endl;
 	 current->set_link_succ_pred(succ);
-	 cout << "unconditionnal jump treated" << endl;
+	 //cout << "unconditionnal jump treated" << endl;
 	 it++;
-	 cout << "iterator OK" << endl ;
+	 //cout << "iterator OK" << endl ;
 	 }
        } else {
-	 cout << "Indirect Branch" << endl;
+	 //cout << "Indirect Branch" << endl;
 	 it++;
        }
      } else {
        //if (pred!=NULL) pred->set_link_succ_pred(current);
-       cout << "on passe par là" <<endl;
+       //cout << "on passe par là" <<endl;
        current->set_link_succ_pred(*++it);
      }
    }

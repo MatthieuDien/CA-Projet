@@ -322,7 +322,7 @@ void Basic_block::comput_pred_succ_dep(){
      BUG AU NIVEAU DU "merde"
    */
   
-   cout << sizeb << endl;
+   //cout << sizeb << endl;
    for(i=sizeb-1; i>=0; i--){
      i_current = get_instruction_at_index(i);
      for(j=i-1; j>=0; j--){

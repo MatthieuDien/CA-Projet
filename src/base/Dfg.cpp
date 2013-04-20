@@ -47,8 +47,9 @@ Dfg::Dfg(Basic_block *bb){
   
   bb->comput_pred_succ_dep();
 
-  Node_dfg* branch;
+  Node_dfg* branch = NULL;
 
+  //On créée les noeuds du graphe
   for(int i=0;i<_length;i++) {
     Node_dfg* temp_node;
     Instruction* temp = bb->get_instruction_at_index(i);
@@ -63,33 +64,40 @@ Dfg::Dfg(Basic_block *bb){
     list_node_dfg.push_back(temp_node);
   }
    
+  //On créée les arcs
   list<Node_dfg*>::iterator it_node = list_node_dfg.begin();
   for(int i=0;i<_length;i++) {
     Node_dfg* node = *it_node;
     Instruction* inst = node->get_instruction();  
 
+    //On est tombé sur une racine
     if(inst->get_nb_pred() == 0 && !inst->is_branch()) {
-      cout << "on chope une racine" << endl;
+      //cout << "on chope une racine" << endl;
       _roots.push_back(node);
     }
 
+    //On ajoute l'instruction suivante à la liste des delayed slots
     if(inst->is_branch()) {
-      _delayed_slot.push_back((Node_dfg*)*(++it_node));
+      _delayed_slot.push_back(*(++it_node));
       break;
     }
 
-    if(inst->succ_begin()==inst->succ_end()){
-      //L'instruction n'a pas de successeur
+    //l'instruction n'a pas de successeur et on a un branchement dans le bloc, on ajoute un arc CONTROL
+    if(inst->succ_begin()==inst->succ_end() && branch){
       Arc_t* arc_branch = new_arc(0,CONTROL,branch);
       node->add_arc(arc_branch);
-      cout << "arc de CONTROL ajouté" << endl;
-    } else {
+      branch->add_predecesseur(node);
+      _nb_arc++;
+      //cout << "arc de CONTROL ajouté" << endl;
+    } 
+    //On a des successeurs
+    else {
       for(list<dep*>::iterator it_succ = inst->succ_begin(); it_succ != inst->succ_end(); it_succ++) {
 	list<Node_dfg*>::iterator it_temp ;
 	Node_dfg* succ;
 	for(it_temp=list_node_dfg.begin();it_temp!=list_node_dfg.end();it_temp++){
-	  if(((Node_dfg*)*it_temp)->get_instruction() == (Instruction*)inst){
-	    succ=(Node_dfg*)*it_temp;
+	  if((*it_temp)->get_instruction() == (*it_succ)->inst){
+	    succ=*it_temp;
 	    break;
 	  }
 	}
@@ -98,7 +106,8 @@ Dfg::Dfg(Basic_block *bb){
 	int delay = get_delay(dep,inst,succ->get_instruction());
 	Arc_t* arc = new_arc(delay,dep,succ);
 	node->add_arc(arc);
-	cout << "arc ajouté" << endl;
+	succ->add_predecesseur(node);
+	_nb_arc++;
       }
     }
          
@@ -252,10 +261,71 @@ bool contains(list<Node_dfg*>* l, Node_dfg* n){
    return false;
 }
 
-//A FAIRE
+list<Node_dfg*> Dfg::get_inverse_topologic_order() {
+  list<Node_dfg*> l, r;//r = liste résultat
+  list<Node_dfg*>::iterator it;
+
+  //On ajoute les noeuds sans successeurs à la liste
+  for(it=list_node_dfg.begin();it!=list_node_dfg.end();it++) {
+    if((*it)->get_nb_arcs() == 0){
+      r.push_back(*it);
+      l.push_back(*it);
+      _read[(*it)->get_instruction()->get_index()] = 1;
+    } else {
+      _read[(*it)->get_instruction()->get_index()] = 0;
+    }
+  }
+
+  while(!l.empty()){
+    //Noeud candidat à la prochaine place
+    Node_dfg* candidat = l.front();
+    l.pop_front();
+    bool succ_treated = true;
+    list<Arc_t*>::iterator it_succ;
+    for(it_succ=candidat->arcs_begin();it_succ!=candidat->arcs_end();it_succ++){
+      succ_treated &= (_read[(*it_succ)->next->get_instruction()->get_index()]==1);
+      //Si un des successeurs du candidat n'a pas été traité il faut le traité avant lui
+      if(!succ_treated){
+	l.push_front(candidat);
+	l.push_front((*it_succ)->next);
+	break;
+      }
+    }
+    if(succ_treated){
+      //les successeurs du candidats ont été traité, on ajoute le candidat à la liste et ses
+      //prédecesseurs à la liste des candidats a traiter
+      if( _read[candidat->get_instruction()->get_index()]!=1){
+	r.push_back(candidat);
+	_read[candidat->get_instruction()->get_index()]=1;
+      }
+      list<Node_dfg*>::iterator preds;
+      for(preds=candidat->pred_begin();preds!=candidat->pred_end();preds++)
+	if(_read[(*preds)->get_instruction()->get_index()]==0)
+	  l.push_back(*preds);
+    }
+  }
+
+  return r;
+}
+
+
 void Dfg::comput_critical_path(){
+  list<Node_dfg*>::iterator it_node;
+  list<Node_dfg*> list_node_ordered = get_inverse_topologic_order();
 
-
+  for(it_node=list_node_dfg.begin();it_node!=list_node_dfg.end();it_node++)
+    (*it_node)->set_weight(0);
+  
+  for(it_node=list_node_ordered.begin();it_node!=list_node_ordered.end();it_node++){
+    //cout << (*it_node)->get_instruction()->get_index() << endl;
+    if((*it_node)->get_nb_arcs() == 0)
+      (*it_node)->set_weight((*it_node)->get_instruction()->get_latency());
+    else {
+      list<Arc_t*>::iterator it_succ;
+      for(it_succ=(*it_node)->arcs_begin();it_succ!=(*it_node)->arcs_end();it_succ++)
+	(*it_node)->set_weight(max((*it_node)->get_weight(),(*it_succ)->delai+(*it_succ)->next->get_weight()));
+     }
+  }
 
 #ifdef DEBUG
   it=list_node_dfg.begin();
@@ -267,24 +337,15 @@ void Dfg::comput_critical_path(){
 }
 
 
-
-// A FAIRE
 int Dfg::get_critical_path(){
-  return 0;
+  list<Node_dfg*>::iterator it_node;
+  comput_critical_path();
+  int criticalpath =0;
+  for(it_node=_roots.begin();it_node!=_roots.end();it_node++)
+    criticalpath = max(criticalpath,(*it_node)->get_weight());
+
+  return criticalpath;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 void  Dfg::scheduling(){
