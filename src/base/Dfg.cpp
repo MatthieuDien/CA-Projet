@@ -1,4 +1,5 @@
-#include <Dfg.h>
+#include "Dfg.h"
+#include "Node_dfg.h"
 
 // crée un arc et le renvoie
 Arc_t* new_arc(int del, t_Dep d, Node_dfg *n){
@@ -347,8 +348,36 @@ int Dfg::get_critical_path(){
   return criticalpath;
 }
 
+bool no_freeze_cycle(Node_dfg *n){
+  list <Node_dfg*>::iterator it;
+  for(it=new_order.begin();it!=new_order.end();it++){
+    // le noeud it est un prédécesseur de n
+    if (contains(&(n->_pred), n)) {
+      
+    }
+    return true;
+  }
+}
+
+Node_dfg* get_max_weight() {
+  list <Node_dfg*>::iterator it;
+  int max_weight;
+  
+  for(it=_inst_ready.begin();it!=_inst_ready.end();it++){
+    // poids maximum
+    if ((*it)->get_weight() > max_weight){
+      max_weight = (*it)->get_weight();
+    }
+    // TODO : pas de gel
+    return *it;
+    
+    
+  }
+}
 
 void  Dfg::scheduling(){
+  // dans Dfg.h il y a une liste inst_ready et une autre new_order
+  
 }
 
 void Dfg::display_sheduled_instr(){

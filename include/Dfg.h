@@ -63,7 +63,6 @@ public:
 	/**	\brief	comput the node weight needed for critical path computation of the Dfg
 */
 	void comput_critical_path();
-
 	
 	/**	\brief	order the instructions in the basic block according to an algorithm list
 */
