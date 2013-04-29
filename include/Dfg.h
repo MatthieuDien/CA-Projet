@@ -80,6 +80,10 @@ public:
 
 	list<Node_dfg*> get_inverse_topologic_order();
 
+	bool no_freeze_cycle(Node_dfg*);
+
+	Node_dfg* get_max_weight();
+
 private:
 	Basic_block *_bb;
 	list <Node_dfg*> list_node_dfg;

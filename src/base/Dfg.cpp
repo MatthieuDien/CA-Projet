@@ -348,18 +348,17 @@ int Dfg::get_critical_path(){
   return criticalpath;
 }
 
-bool no_freeze_cycle(Node_dfg *n){
+bool Dfg::no_freeze_cycle(Node_dfg *n){
   list <Node_dfg*>::iterator it;
+  
   for(it=new_order.begin();it!=new_order.end();it++){
     // le noeud it est un prédécesseur de n
-    if (contains(&(n->_pred), n)) {
-      
-    }
-    return true;
+    
   }
+  return true;
 }
 
-Node_dfg* get_max_weight() {
+Node_dfg* Dfg::get_max_weight() {
   list <Node_dfg*>::iterator it;
   int max_weight;
   
