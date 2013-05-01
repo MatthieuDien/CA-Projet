@@ -84,6 +84,10 @@ public:
 
 	void get_max_weight(list<Node_dfg*> *);
 
+	void sort_by_priority(list<Node_dfg*>* );
+
+	bool compare_freeze(Node_dfg*,Node_dfg*);
+
 private:
 	Basic_block *_bb;
 	list <Node_dfg*> list_node_dfg;

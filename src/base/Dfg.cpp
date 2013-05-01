@@ -370,30 +370,69 @@ bool Dfg::freeze_cycle(Node_dfg* node){
   return false;
 }
 
-//met dans nodes le ou les noeuds de poids max
+//met dans nodes le ou les noeuds de poids max de _inst_ready
 void Dfg::get_max_weight(list<Node_dfg*> *nodes) {
   list <Node_dfg*>::iterator it;
   int max_weight = -1;
-  cout << "enter get_max_weight" << endl;
+  //  cout << "enter get_max_weight" << endl;
   
   for(it=_inst_ready.begin();it!=_inst_ready.end();it++){
-    cout << "iter" << endl;
+    //cout << "iter" << endl;
     // poids maximum
     if ((*it)->get_weight() > max_weight){
-      cout << "Aa" << endl;
+      //cout << "Aa" << endl;
       nodes->clear();
       nodes->push_front(*it);
-      cout << "Ab" << endl;
+      //cout << "Ab" << endl;
       max_weight = (*it)->get_weight();
     } else if ((*it)->get_weight() == max_weight){
-      cout << "Ba" << endl;
+      //cout << "Ba" << endl;
       nodes->push_back(*it);
-      cout << "Bb" << endl;
+      //cout << "Bb" << endl;
     }
   }
 }
 
 
+bool compare_weight(Node_dfg* a, Node_dfg* b){
+  return a->get_weight() > b->get_weight();
+}
+
+bool Dfg::compare_freeze(Node_dfg* a, Node_dfg* b){
+  if(freeze_cycle(a))
+    return !freeze_cycle(b);
+  else
+    return true;
+}
+bool compare_desc(Node_dfg* a, Node_dfg* b){
+  return a->get_nb_descendant() > b->get_nb_descendant();
+}
+bool compare_pred(Node_dfg* a, Node_dfg* b){
+  return a->nb_preds() > b->nb_preds();
+}
+bool compare_latency(Node_dfg* a, Node_dfg* b){
+  return a->get_instruction()->get_latency() > b->get_instruction()->get_latency();
+}
+bool compare_index(Node_dfg* a, Node_dfg* b){
+  return a->get_instruction()->get_index() < b->get_instruction()->get_index();
+}
+
+
+void Dfg::sort_by_priority(list<Node_dfg*>* l){  
+  l->sort(compare_index);
+  l->sort(compare_desc);
+  l->sort(compare_pred);
+  l->sort(compare_latency);
+  l->sort(compare_weight);
+  list<Node_dfg*>::iterator iti, itj;
+  for(iti=l->begin();iti!=l->end();iti++)
+    for(itj=iti;itj!=l->end();itj++)
+      if(freeze_cycle(*iti))
+	if(!freeze_cycle(*itj)){
+	  std::swap(*iti, *itj);
+	  break;
+	}
+}
 
 void Dfg::scheduling(){
   list <Node_dfg*>::iterator it_roots;
@@ -407,29 +446,21 @@ void Dfg::scheduling(){
 
   // tant qu'il reste des instructions à traiter
   while(_inst_ready.size() > 0){
-    cout << "la" << endl;
-    cout << _inst_ready.size() << endl;
-    get_max_weight(&tmp_nodes);
-    if (tmp_nodes.size() > 1) {
-      // la il faut faire les autre règles
-      cout << "TODO" << endl;
-    } else if (tmp_nodes.size() == 1){
-      // la on a trouvé l'instruction suivante dans le réordonnancement
-      cout << "au plus 1" << endl;
-      tmp_node = tmp_nodes.front();
-      new_order.push_back(tmp_node);
-      _inst_ready.remove(tmp_node);
-      tmp_nodes.clear();
-    } else {
-      cout << "c'est la merde bro" << endl;
-      exit(0);
-    }
-    
+    //cout << "la" << endl;
+    //cout << _inst_ready.size() << endl;
+    sort_by_priority(&_inst_ready);
+    // for(it_roots=_inst_ready.begin();it_roots!=_inst_ready.end();it_roots++)
+    //   cout << freeze_cycle(*it_roots);
+    // cout <<endl;
+    new_order.push_back(_inst_ready.front());
+    tmp_node = _inst_ready.front();
     // il faut rajouter les nouvelles instructions prêtes
     list <Arc_t*>::iterator it_arcs;
     for(it_arcs=tmp_node->arcs_begin();it_arcs!=tmp_node->arcs_end();it_arcs++){
-      _inst_ready.push_back((*it_arcs)->next);
+      if(!contains(&new_order,(*it_arcs)->next) && !contains(&_inst_ready,(*it_arcs)->next))
+	 _inst_ready.push_back((*it_arcs)->next);
     }
+    _inst_ready.pop_front();
   }
 }
 
