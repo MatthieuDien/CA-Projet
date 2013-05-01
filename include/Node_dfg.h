@@ -63,6 +63,7 @@ public:
 
 	void add_predecesseur(Node_dfg*);
 	int nb_preds();
+	list<Node_dfg*>* get_pred();
 	list<Node_dfg*>::iterator pred_begin();
 	list<Node_dfg*>::iterator pred_end();
 

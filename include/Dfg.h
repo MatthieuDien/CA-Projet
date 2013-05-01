@@ -75,14 +75,14 @@ public:
 
 /**	\brief	display the instruction according to the new_order list
 */	
-	void display_sheduled_instr();
+	void display_scheduled_instr();
 
 
 	list<Node_dfg*> get_inverse_topologic_order();
 
-	bool no_freeze_cycle(Node_dfg*);
+	bool freeze_cycle(Node_dfg*);
 
-	Node_dfg* get_max_weight();
+	void get_max_weight(list<Node_dfg*> *);
 
 private:
 	Basic_block *_bb;
@@ -95,7 +95,7 @@ private:
 
 	int _nb_arc;
 	int _length;
-	int *_read; 
+	int *_read;
 	int _index_branch;
 };
 

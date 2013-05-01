@@ -348,38 +348,92 @@ int Dfg::get_critical_path(){
   return criticalpath;
 }
 
-bool Dfg::no_freeze_cycle(Node_dfg *n){
-  list <Node_dfg*>::iterator it;
-  
-  for(it=new_order.begin();it!=new_order.end();it++){
-    // le noeud it est un prédécesseur de n
-    
+
+//rend vrai s'il y a un cycle de gel
+bool Dfg::freeze_cycle(Node_dfg* node){
+  list <Node_dfg*>::iterator it = new_order.begin();
+  int i, n;
+  n = new_order.size();
+  for(i=0;i<n;i++){
+    // si l'instruction réordonnancée est un prédécesseur de node
+    // (on peut surement utiliser les arcs du dfg pour choper le délai)
+    if (contains(node->get_pred(), *it)) {
+      Instruction *pred = (*it)->get_instruction();
+      Instruction *succ = node->get_instruction();
+      // si le délai est plus important que la "distance" entre les 2 instructions
+      if (get_delay(pred->is_dependant(succ),pred,succ) > n - i) {
+	return true;
+      }
+    }
+    it++;
   }
-  return true;
+  return false;
 }
 
-Node_dfg* Dfg::get_max_weight() {
+//met dans nodes le ou les noeuds de poids max
+void Dfg::get_max_weight(list<Node_dfg*> *nodes) {
   list <Node_dfg*>::iterator it;
-  int max_weight;
+  int max_weight = -1;
+  cout << "enter get_max_weight" << endl;
   
   for(it=_inst_ready.begin();it!=_inst_ready.end();it++){
+    cout << "iter" << endl;
     // poids maximum
     if ((*it)->get_weight() > max_weight){
+      cout << "Aa" << endl;
+      nodes->clear();
+      nodes->push_front(*it);
+      cout << "Ab" << endl;
       max_weight = (*it)->get_weight();
+    } else if ((*it)->get_weight() == max_weight){
+      cout << "Ba" << endl;
+      nodes->push_back(*it);
+      cout << "Bb" << endl;
     }
-    // TODO : pas de gel
-    return *it;
-    
-    
   }
 }
 
-void  Dfg::scheduling(){
-  // dans Dfg.h il y a une liste inst_ready et une autre new_order
-  
+
+
+void Dfg::scheduling(){
+  list <Node_dfg*>::iterator it_roots;
+  // les premières instructions prêtes sont les racines
+  for(it_roots=_roots.begin();it_roots!=_roots.end();it_roots++){
+    _inst_ready.push_back(*it_roots);
+  }
+
+  list <Node_dfg*> tmp_nodes;
+  Node_dfg *tmp_node;
+
+  // tant qu'il reste des instructions à traiter
+  while(_inst_ready.size() > 0){
+    cout << "la" << endl;
+    cout << _inst_ready.size() << endl;
+    get_max_weight(&tmp_nodes);
+    if (tmp_nodes.size() > 1) {
+      // la il faut faire les autre règles
+      cout << "TODO" << endl;
+    } else if (tmp_nodes.size() == 1){
+      // la on a trouvé l'instruction suivante dans le réordonnancement
+      cout << "au plus 1" << endl;
+      tmp_node = tmp_nodes.front();
+      new_order.push_back(tmp_node);
+      _inst_ready.remove(tmp_node);
+      tmp_nodes.clear();
+    } else {
+      cout << "c'est la merde bro" << endl;
+      exit(0);
+    }
+    
+    // il faut rajouter les nouvelles instructions prêtes
+    list <Arc_t*>::iterator it_arcs;
+    for(it_arcs=tmp_node->arcs_begin();it_arcs!=tmp_node->arcs_end();it_arcs++){
+      _inst_ready.push_back((*it_arcs)->next);
+    }
+  }
 }
 
-void Dfg::display_sheduled_instr(){
+void Dfg::display_scheduled_instr(){
    list <Node_dfg*>::iterator it;
    Instruction *inst;
    for(it=new_order.begin(); it!=new_order.end(); it++){

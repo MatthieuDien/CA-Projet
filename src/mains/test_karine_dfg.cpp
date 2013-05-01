@@ -22,6 +22,8 @@ int main(int argc, char ** argv){
 	  Dfg * dfg = new Dfg(BB);
 	  dfg->restitute(NULL,"./tmp/graph_dfg0.dot", true);
 	  cout << "temps critique : "<< dfg->get_critical_path() << endl;
+	  dfg->scheduling();
+	  dfg->display_scheduled_instr();
 	}
 	if (fct -> nbr_BB()  > 1){
 	  Basic_block * BB = fct -> get_BB(1);
@@ -29,7 +31,8 @@ int main(int argc, char ** argv){
 	  Dfg *  dfg = new Dfg(BB);
 	  dfg->restitute(NULL,"./tmp/graph_dfg1.dot", true);
 	  cout << "temps critique : "<< dfg->get_critical_path() << endl;
-	  
+	  dfg->scheduling();
+	  dfg->display_scheduled_instr();
 	}
 	if (fct -> nbr_BB()  > 2){
 	  Basic_block * BB = fct -> get_BB(2);
@@ -37,5 +40,7 @@ int main(int argc, char ** argv){
 	  Dfg *  dfg = new Dfg(BB);
 	  dfg->restitute(NULL,"./tmp/graph_dfg2.dot", true);
 	  cout << "temps critique : "<< dfg->get_critical_path() << endl;
+	  dfg->scheduling();
+	  dfg->display_scheduled_instr();
 	}
 }
