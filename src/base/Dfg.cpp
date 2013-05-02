@@ -370,29 +370,6 @@ bool Dfg::freeze_cycle(Node_dfg* node){
   return false;
 }
 
-//met dans nodes le ou les noeuds de poids max de _inst_ready
-void Dfg::get_max_weight(list<Node_dfg*> *nodes) {
-  list <Node_dfg*>::iterator it;
-  int max_weight = -1;
-  //  cout << "enter get_max_weight" << endl;
-  
-  for(it=_inst_ready.begin();it!=_inst_ready.end();it++){
-    //cout << "iter" << endl;
-    // poids maximum
-    if ((*it)->get_weight() > max_weight){
-      //cout << "Aa" << endl;
-      nodes->clear();
-      nodes->push_front(*it);
-      //cout << "Ab" << endl;
-      max_weight = (*it)->get_weight();
-    } else if ((*it)->get_weight() == max_weight){
-      //cout << "Ba" << endl;
-      nodes->push_back(*it);
-      //cout << "Bb" << endl;
-    }
-  }
-}
-
 
 bool compare_weight(Node_dfg* a, Node_dfg* b){
   return a->get_weight() > b->get_weight();
