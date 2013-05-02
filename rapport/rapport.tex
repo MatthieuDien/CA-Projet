@@ -1,4 +1,4 @@
-\documentclass[a4paper, 11pt]{report}
+\documentclass[a4paper, 11pt]{article}
 
 \addtolength{\hoffset}{-1cm}
 \addtolength{\textwidth}{2cm}
@@ -9,12 +9,13 @@
 
 \usepackage{tikz}
 
-
-
+\title{Projet de Compilation Avancé}
+\author{Mathieu Chailloux \and Matthieu Dien}
 
 \begin{document}
 
-\chapter{Projet de Compilation Avancée}
+\maketitle
+
 
 Le but de ce projet est la prise en main des techniques d'optimisation de code assembleur (ici MIPS) et la mise en pratique des concepts appris en cours. Pour cela, il nous a fallu manipuler les notions de dépendances, entre blocs ou entre instructions, de graphe de flot de contrôle, de graphe de flot de données, ou encore de chemin critique. Cela nous a permis de pouvoir atteindre l'étape de réordonnancement du code qui est la première véritable technique d'optimisation. Par la suite, nous allons détailler les fonctionnalités implémentées.
 
@@ -68,7 +69,14 @@ Voir le constructeur de la classe Dfg.
 
 \section{Calcul du chemin critique}
 
-
+Le calcu du chemin critique se fait selon l'algorithme vu en cours. Une
+méthode \verb|get_inverser_topoligical_order| a été ajouté pour calculer
+l'ordre topologique nécessaire à la construction du chemin
+critique. L'algorithme est simple : on part d'une liste temporaire des noeuds sans
+successeurs. Pour chaque noeud dans la liste temporaire (en partant du premier), on
+l'ajoute en queue à la liste finale, puis on ajoute ses prédécesseurs en queue
+de la liste temporaire. On itère ce processus jusqu'à ce que la liste
+temporaire soit vide.
 
 \section{Réordonnancement}
 
